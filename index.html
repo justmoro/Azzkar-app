@@ -429,29 +429,7 @@
     const countBtn = e.target.closest(".count-btn");
     if(countBtn){
       const i = parseInt(countBtn.dataset.idx, 10);
-      const counts = currentCounts();
-      const target = currentList()[i].target;
-      if(counts[i] < target){
-        counts[i]++;
-        const justCompleted = counts[i] === target;
-        if(navigator.vibrate) navigator.vibrate(8);
-        saveCounts(state.mode, counts);
-        render();
-        if(justCompleted){
-          const list = currentList();
-          const nextCounts = currentCounts();
-          const nextIdx = nextCounts.findIndex((c,idx)=> c < list[idx].target);
-          if(nextIdx !== -1){
-            requestAnimationFrame(()=>{
-              const nextCard = cardsHost.querySelector('[data-idx="'+nextIdx+'"]');
-              if(nextCard) nextCard.scrollIntoView({behavior:"smooth", block:"center"});
-            });
-          } else {
-            // كل الأذكار في هذا القسم اكتملت
-            if(navigator.vibrate) navigator.vibrate([10,40,10]);
-          }
-        }
-      }
+      incrementZikr(i);
       return;
     }
     const audioBtn = e.target.closest(".audio-btn");
@@ -461,20 +439,61 @@
     }
   });
 
-  // مشغّل صوتي متسلسل لتلاوة الآيات المرتبطة بكل ذكر
+  // يزيد عداد ذكر معيّن بمقدار مرة واحدة، ويحفظ، ويحدّث الواجهة،
+  // ولو اكتمل عدد المرات المطلوب ينتقل تلقائيًا (سكرول) للذكر التالي غير المكتمل
+  function incrementZikr(i){
+    const counts = currentCounts();
+    const target = currentList()[i].target;
+    if(counts[i] >= target) return false;
+    counts[i]++;
+    const justCompleted = counts[i] === target;
+    if(navigator.vibrate) navigator.vibrate(8);
+    saveCounts(state.mode, counts);
+    render();
+    if(justCompleted){
+      const list = currentList();
+      const nextCounts = currentCounts();
+      const nextIdx = nextCounts.findIndex((c,idx)=> c < list[idx].target);
+      if(nextIdx !== -1){
+        requestAnimationFrame(()=>{
+          const nextCard = cardsHost.querySelector('[data-idx="'+nextIdx+'"]');
+          if(nextCard) nextCard.scrollIntoView({behavior:"smooth", block:"center"});
+        });
+      } else {
+        // كل الأذكار في هذا القسم اكتملت
+        if(navigator.vibrate) navigator.vibrate([10,40,10]);
+      }
+    }
+    return justCompleted;
+  }
+
+  // مشغّل صوتي متسلسل لتلاوة الآيات المرتبطة بكل ذكر — يكرر التلاوة كاملة
+  // بعدد المرات المتبقية من هدف التكرار، ويزيد العداد تلقائيًا بعد كل مرة كاملة
   const player = new Audio();
   let playQueue = [];
   let playQueueIdx = 0;
+  let ayahsPerRep = 1;
+  let activeZikrIdx = -1;
 
   function stopAudio(){
     player.pause();
     player.currentTime = 0;
     state.playingKey = null;
+    activeZikrIdx = -1;
     render();
   }
 
   player.addEventListener("ended", function(){
     playQueueIdx++;
+    // هل اكتملت مرة كاملة من التلاوة (كل آيات السورة/الآية)؟
+    if(activeZikrIdx !== -1 && playQueueIdx % ayahsPerRep === 0){
+      const stillGoing = incrementZikr(activeZikrIdx);
+      // لو الذكر خلص (وصل للهدف) أو مفيش حاجة تانية في الطابور، وقف التشغيل
+      if(playQueueIdx >= playQueue.length){
+        stopAudio();
+        return;
+      }
+    }
     if(playQueueIdx < playQueue.length){
       player.src = playQueue[playQueueIdx];
       player.play().catch(()=> stopAudio());
@@ -489,11 +508,24 @@
       stopAudio();
       return;
     }
+    // لو فيه تلاوة تانية شغالة لذكر مختلف، وقّفها الأول
+    if(state.playingKey){
+      player.pause();
+    }
     const list = currentList();
     const z = list[i];
     if(!z.audio || !z.audio.length) return;
-    playQueue = z.audio;
+    const counts = currentCounts();
+    const remainingReps = z.target - counts[i];
+    if(remainingReps <= 0) return;
+    // ابنِ طابور تشغيل يكرر آيات الذكر بعدد المرات المتبقية لإتمام الهدف
+    playQueue = [];
+    for(let r = 0; r < remainingReps; r++){
+      z.audio.forEach(url => playQueue.push(url));
+    }
+    ayahsPerRep = z.audio.length;
     playQueueIdx = 0;
+    activeZikrIdx = i;
     player.src = playQueue[0];
     state.playingKey = key;
     render();
