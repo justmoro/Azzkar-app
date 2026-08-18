@@ -167,6 +167,23 @@
   }
   .zikr-note{font-size:12.5px;opacity:.65;margin-top:8px;}
 
+  .audio-row{margin-top:12px;}
+  .audio-btn{
+    border:1px solid var(--glass-border);
+    background:rgba(184,137,79,0.12);
+    color:var(--brass-deep);
+    font-family:'Tajawal',sans-serif;
+    font-size:12.5px;font-weight:700;
+    padding:7px 14px;border-radius:999px;
+    cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;
+    transition:all .2s ease;
+  }
+  body.mode-evening .audio-btn{color:#d8b57e;background:rgba(216,181,126,0.1);}
+  .audio-btn.playing{background:var(--emerald);color:#f6ead2;border-color:var(--emerald);}
+  body.mode-evening .audio-btn.playing{background:var(--brass);color:#1b2a4a;border-color:var(--brass);}
+  .audio-unavailable{font-size:11.5px;opacity:.5;font-style:italic;}
+
   .counter-row{
     display:flex;align-items:center;justify-content:space-between;
     margin-top:16px;padding-top:14px;
@@ -286,11 +303,18 @@
 (function(){
   "use strict";
 
+  // روابط التلاوة من everyayah.com (الشيخ مشاري العفاسي) — كل رقم بصيغة سورة+آية من 3 خانات
+  const QA = "https://everyayah.com/data/Alafasy_128kbps/";
+  const ayahKursi = [QA+"002255.mp3"];
+  const surahIkhlas = [QA+"112001.mp3", QA+"112002.mp3", QA+"112003.mp3"];
+  const surahFalaq = [QA+"113001.mp3", QA+"113002.mp3", QA+"113003.mp3", QA+"113004.mp3", QA+"113005.mp3"];
+  const surahNas = [QA+"114001.mp3", QA+"114002.mp3", QA+"114003.mp3", QA+"114004.mp3", QA+"114005.mp3", QA+"114006.mp3"];
+
   const morningAzkar = [
-    {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1},
-    {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3},
-    {text:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ...", note:"سورة الفلق — ثلاث مرات", target:3},
-    {text:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ، مَلِكِ النَّاسِ، إِلَٰهِ النَّاسِ، مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ...", note:"سورة الناس — ثلاث مرات", target:3},
+    {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1, audio:ayahKursi},
+    {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3, audio:surahIkhlas},
+    {text:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ...", note:"سورة الفلق — ثلاث مرات", target:3, audio:surahFalaq},
+    {text:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ، مَلِكِ النَّاسِ، إِلَٰهِ النَّاسِ، مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ...", note:"سورة الناس — ثلاث مرات", target:3, audio:surahNas},
     {text:"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", note:"مرة واحدة", target:1},
     {text:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ...", note:"سيد الاستغفار — مرة واحدة", target:1},
     {text:"اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَٰهَ إِلَّا أَنْتَ", note:"ثلاث مرات", target:3},
@@ -301,10 +325,10 @@
   ];
 
   const eveningAzkar = [
-    {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1},
-    {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3},
-    {text:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ...", note:"سورة الفلق — ثلاث مرات", target:3},
-    {text:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ، مَلِكِ النَّاسِ، إِلَٰهِ النَّاسِ، مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ...", note:"سورة الناس — ثلاث مرات", target:3},
+    {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1, audio:ayahKursi},
+    {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3, audio:surahIkhlas},
+    {text:"قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ، مِن شَرِّ مَا خَلَقَ، وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ...", note:"سورة الفلق — ثلاث مرات", target:3, audio:surahFalaq},
+    {text:"قُلْ أَعُوذُ بِرَبِّ النَّاسِ، مَلِكِ النَّاسِ، إِلَٰهِ النَّاسِ، مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ...", note:"سورة الناس — ثلاث مرات", target:3, audio:surahNas},
     {text:"أَمْسَيْنَا وَأَمْسَىٰ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", note:"مرة واحدة", target:1},
     {text:"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ...", note:"سيد الاستغفار — مرة واحدة", target:1},
     {text:"اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي، لَا إِلَٰهَ إِلَّا أَنْتَ", note:"ثلاث مرات", target:3},
@@ -321,7 +345,8 @@
     morning: loadCounts("morning", morningAzkar.length),
     evening: loadCounts("evening", eveningAzkar.length),
     tasbihIdx: 0,
-    tasbihCount: parseInt(localStorage.getItem("tasbih_count")||"0",10)
+    tasbihCount: parseInt(localStorage.getItem("tasbih_count")||"0",10),
+    playingKey: null
   };
 
   function todayKey(){
@@ -359,12 +384,17 @@
       const done = counts[i] >= z.target;
       const card = document.createElement("div");
       card.className = "card" + (done ? " done" : "");
+      const playing = state.playingKey === (state.mode+"-"+i);
+      const audioBtn = z.audio
+        ? `<button class="audio-btn ${playing ? "playing" : ""}" data-audio-idx="${i}" aria-label="استماع">${playing ? "⏸" : "▶"} استماع</button>`
+        : `<span class="audio-unavailable">لا تتوفر تلاوة صوتية لهذا الذكر</span>`;
       card.innerHTML = `
         <div class="card-top">
           <span class="zikr-num">${i+1} / ${list.length}</span>
         </div>
         <div class="zikr-text">${z.text}</div>
         <div class="zikr-note">${z.note}</div>
+        <div class="audio-row">${audioBtn}</div>
         <div class="counter-row">
           <div class="count-display">${done ? "✓ تم" : "<b>"+counts[i]+"</b> / "+z.target}</div>
           <button class="count-btn ${done ? "finished" : ""}" data-idx="${i}" aria-label="عدّ">${done ? "✓" : "+"}</button>
@@ -376,18 +406,67 @@
   }
 
   cardsHost.addEventListener("click", function(e){
-    const btn = e.target.closest(".count-btn");
-    if(!btn) return;
-    const i = parseInt(btn.dataset.idx, 10);
-    const counts = currentCounts();
-    const target = currentList()[i].target;
-    if(counts[i] < target){
-      counts[i]++;
-      if(navigator.vibrate) navigator.vibrate(8);
-      saveCounts(state.mode, counts);
-      render();
+    const countBtn = e.target.closest(".count-btn");
+    if(countBtn){
+      const i = parseInt(countBtn.dataset.idx, 10);
+      const counts = currentCounts();
+      const target = currentList()[i].target;
+      if(counts[i] < target){
+        counts[i]++;
+        if(navigator.vibrate) navigator.vibrate(8);
+        saveCounts(state.mode, counts);
+        render();
+      }
+      return;
+    }
+    const audioBtn = e.target.closest(".audio-btn");
+    if(audioBtn){
+      const i = parseInt(audioBtn.dataset.audioIdx, 10);
+      toggleAudio(i);
     }
   });
+
+  // مشغّل صوتي متسلسل لتلاوة الآيات المرتبطة بكل ذكر
+  const player = new Audio();
+  let playQueue = [];
+  let playQueueIdx = 0;
+
+  function stopAudio(){
+    player.pause();
+    player.currentTime = 0;
+    state.playingKey = null;
+    render();
+  }
+
+  player.addEventListener("ended", function(){
+    playQueueIdx++;
+    if(playQueueIdx < playQueue.length){
+      player.src = playQueue[playQueueIdx];
+      player.play().catch(()=> stopAudio());
+    } else {
+      stopAudio();
+    }
+  });
+
+  function toggleAudio(i){
+    const key = state.mode + "-" + i;
+    if(state.playingKey === key){
+      stopAudio();
+      return;
+    }
+    const list = currentList();
+    const z = list[i];
+    if(!z.audio || !z.audio.length) return;
+    playQueue = z.audio;
+    playQueueIdx = 0;
+    player.src = playQueue[0];
+    state.playingKey = key;
+    render();
+    player.play().catch(()=>{
+      alert("تعذّر تشغيل التلاوة الآن، تأكد من اتصالك بالإنترنت.");
+      stopAudio();
+    });
+  }
 
   function updateProgress(){
     const list = currentList();
@@ -411,6 +490,7 @@
   }
 
   function showAzkar(mode){
+    if(state.playingKey) stopAudio();
     state.mode = mode;
     azkarView.style.display = "";
     tasbihView.style.display = "none";
@@ -423,6 +503,7 @@
   btnMorning.addEventListener("click", ()=> showAzkar("morning"));
   btnEvening.addEventListener("click", ()=> showAzkar("evening"));
   btnTasbih.addEventListener("click", ()=>{
+    if(state.playingKey) stopAudio();
     azkarView.style.display = "none";
     tasbihView.style.display = "";
     progressWrap.style.display = "none";
