@@ -150,6 +150,22 @@
   }
   .card.done{opacity:.5;}
   .card.done .zikr-text{text-decoration:line-through;text-decoration-color:var(--brass);text-decoration-thickness:1.5px;}
+  .card.active{
+    border-color:var(--brass);
+    box-shadow:0 0 0 2px rgba(184,137,79,0.35), var(--shadow);
+    transform:scale(1.015);
+  }
+  body.mode-evening .card.active{
+    border-color:#d8b57e;
+    box-shadow:0 0 0 2px rgba(216,181,126,0.3), var(--shadow);
+  }
+  .active-badge{
+    font-size:11px;font-weight:700;
+    background:var(--emerald);color:#f6ead2;
+    padding:3px 10px;border-radius:999px;
+    flex:0 0 auto;
+  }
+  body.mode-evening .active-badge{background:var(--brass);color:#1b2a4a;}
 
   .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
   .zikr-num{
@@ -379,11 +395,14 @@
     const list = currentList();
     const counts = currentCounts();
     sectionTitle.textContent = state.mode === "morning" ? "أذكار الصباح" : "أذكار المساء";
+    const activeIdx = counts.findIndex((c,i)=> c < list[i].target);
     cardsHost.innerHTML = "";
     list.forEach((z, i) => {
       const done = counts[i] >= z.target;
+      const isActive = i === activeIdx;
       const card = document.createElement("div");
-      card.className = "card" + (done ? " done" : "");
+      card.className = "card" + (done ? " done" : "") + (isActive ? " active" : "");
+      card.dataset.idx = i;
       const playing = state.playingKey === (state.mode+"-"+i);
       const audioBtn = z.audio
         ? `<button class="audio-btn ${playing ? "playing" : ""}" data-audio-idx="${i}" aria-label="استماع">${playing ? "⏸" : "▶"} استماع</button>`
@@ -391,6 +410,7 @@
       card.innerHTML = `
         <div class="card-top">
           <span class="zikr-num">${i+1} / ${list.length}</span>
+          ${isActive ? '<span class="active-badge">الذكر الحالي</span>' : ''}
         </div>
         <div class="zikr-text">${z.text}</div>
         <div class="zikr-note">${z.note}</div>
@@ -413,9 +433,24 @@
       const target = currentList()[i].target;
       if(counts[i] < target){
         counts[i]++;
+        const justCompleted = counts[i] === target;
         if(navigator.vibrate) navigator.vibrate(8);
         saveCounts(state.mode, counts);
         render();
+        if(justCompleted){
+          const list = currentList();
+          const nextCounts = currentCounts();
+          const nextIdx = nextCounts.findIndex((c,idx)=> c < list[idx].target);
+          if(nextIdx !== -1){
+            requestAnimationFrame(()=>{
+              const nextCard = cardsHost.querySelector('[data-idx="'+nextIdx+'"]');
+              if(nextCard) nextCard.scrollIntoView({behavior:"smooth", block:"center"});
+            });
+          } else {
+            // كل الأذكار في هذا القسم اكتملت
+            if(navigator.vibrate) navigator.vibrate([10,40,10]);
+          }
+        }
       }
       return;
     }
@@ -500,8 +535,15 @@
     render();
   }
 
-  btnMorning.addEventListener("click", ()=> showAzkar("morning"));
-  btnEvening.addEventListener("click", ()=> showAzkar("evening"));
+  function getAutoMode(){
+    const hour = new Date().getHours();
+    return (hour >= 15 || hour < 4) ? "evening" : "morning";
+  }
+
+  let userPickedManually = false;
+
+  btnMorning.addEventListener("click", ()=>{ userPickedManually = true; showAzkar("morning"); });
+  btnEvening.addEventListener("click", ()=>{ userPickedManually = true; showAzkar("evening"); });
   btnTasbih.addEventListener("click", ()=>{
     if(state.playingKey) stopAudio();
     azkarView.style.display = "none";
@@ -532,10 +574,26 @@
     tasbihPhraseEl.textContent = tasbihPhrases[state.tasbihIdx];
   });
 
-  // auto pick morning/evening based on time of day
-  const hour = new Date().getHours();
-  const autoMode = (hour >= 15 || hour < 4) ? "evening" : "morning";
-  showAzkar(autoMode);
+  // التعرف التلقائي على الوقت: أذكار الصباح فى الصباح، وأذكار المساء فى الليل
+  showAzkar(getAutoMode());
+
+  // إعادة التحقق من الوقت دوريًا (كل دقيقة) لتحديث الوضع تلقائيًا لو تركت الصفحة مفتوحة
+  // عبر انتقال الوقت من صباح لمساء أو العكس — ما لم تختر الوضع بنفسك يدويًا
+  setInterval(function(){
+    if(userPickedManually) return;
+    if(tasbihView.style.display !== "none") return; // المستخدم في شاشة السبحة، لا تُقاطعه
+    const auto = getAutoMode();
+    if(auto !== state.mode) showAzkar(auto);
+  }, 60000);
+
+  // كذلك أعد التحقق فور عودة المستخدم للصفحة (مثلاً بعد غلق الشاشة طوال الليل)
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState !== "visible") return;
+    if(userPickedManually) return;
+    if(tasbihView.style.display !== "none") return;
+    const auto = getAutoMode();
+    if(auto !== state.mode) showAzkar(auto);
+  });
 
   // hijri-ish / gregorian date display
   document.getElementById("todayDate").textContent = new Date().toLocaleDateString("ar-EG", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
