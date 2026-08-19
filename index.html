@@ -538,9 +538,10 @@
         const counts = currentCounts();
         const nextIdx = counts.findIndex((c,idx)=> c < list[idx].target);
         if(nextIdx !== -1 && list[nextIdx].audio && list[nextIdx].audio.length){
-          // تأخير بسيط (0ms) يعطي المتصفح فرصة لإنهاء معالجة حدث "ended"
-          // الحالي قبل بدء تشغيل جديد، ما يقلل من رفض بعض المتصفحات لتشغيل تلقائي متتابع
-          setTimeout(()=> startAudioForZikr(nextIdx, true), 0);
+          // الاستدعاء هنا يجب أن يكون مباشرًا (متزامنًا) داخل حدث "ended" نفسه
+          // وليس عبر setTimeout، حتى يظل ضمن سياق التفاعل الذي بدأه المستخدم
+          // فلا يرفضه المتصفح كتشغيل تلقائي غير مصرح به
+          startAudioForZikr(nextIdx, true);
         } else {
           stopAudio();
         }
