@@ -47,15 +47,15 @@
       linear-gradient(180deg, var(--dusk-1) 0%, var(--dusk-2) 100%);
     color:#eee6d6;
   }
- 
+
   /* ambient stars for evening mode */
   .stars{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;z-index:0;}
   body.mode-evening .stars{opacity:1;}
   .star{position:absolute;width:2px;height:2px;background:#f6ead2;border-radius:50%;animation:twinkle 3.5s ease-in-out infinite;}
   @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
- 
+
   .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px;position:relative;z-index:1;}
- 
+
   header.top{text-align:center;padding:18px 0 8px;}
   .eyebrow{
     font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
@@ -71,9 +71,9 @@
   }
   body.mode-evening h1.title{color:#f6ead2;}
   .subtitle{font-size:14.5px;opacity:.75;margin-bottom:6px;}
- 
+
   .hijri{font-size:13px;opacity:.65;margin-top:2px;}
- 
+
   /* mode toggle */
   .mode-toggle{
     display:flex;justify-content:center;gap:8px;margin:22px 0 6px;
@@ -102,7 +102,7 @@
     color:#1b2a4a;
     border-color:var(--brass);
   }
- 
+
   /* progress ring header */
   .day-progress{
     display:flex;align-items:center;justify-content:center;gap:14px;
@@ -117,7 +117,7 @@
   .ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
   .progress-text{font-size:13.5px;opacity:.8;text-align:right;}
   .progress-text b{font-family:'Amiri',serif;font-size:16px;}
- 
+
   /* cards */
   .section-label{
     font-family:'Amiri',serif;
@@ -130,7 +130,7 @@
   }
   body.mode-evening .section-label{color:#f6ead2;}
   .section-label .dash{flex:1;height:1px;background:linear-gradient(90deg,var(--brass),transparent);}
- 
+
   .card{
     background:var(--glass);
     border:1px solid var(--glass-border);
@@ -166,7 +166,7 @@
     flex:0 0 auto;
   }
   body.mode-evening .active-badge{background:var(--brass);color:#1b2a4a;}
- 
+
   .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
   .zikr-num{
     font-family:'Amiri',serif;font-size:13px;color:var(--brass-deep);
@@ -174,7 +174,7 @@
     border-radius:8px;padding:3px 10px;flex:0 0 auto;
   }
   body.mode-evening .zikr-num{color:#d8b57e;background:rgba(216,181,126,0.12);}
- 
+
   .zikr-text{
     font-family:'Amiri',serif;
     font-size:clamp(19px,3.4vw,23px);
@@ -182,7 +182,7 @@
     text-align:right;
   }
   .zikr-note{font-size:12.5px;opacity:.65;margin-top:8px;}
- 
+
   .audio-row{margin-top:12px;}
   .audio-btn{
     border:1px solid var(--glass-border);
@@ -199,7 +199,7 @@
   .audio-btn.playing{background:var(--emerald);color:#f6ead2;border-color:var(--emerald);}
   body.mode-evening .audio-btn.playing{background:var(--brass);color:#1b2a4a;border-color:var(--brass);}
   .audio-unavailable{font-size:11.5px;opacity:.5;font-style:italic;}
- 
+
   .counter-row{
     display:flex;align-items:center;justify-content:space-between;
     margin-top:16px;padding-top:14px;
@@ -218,10 +218,10 @@
   body.mode-evening .count-btn{background:var(--brass);color:#1b2a4a;}
   .count-btn:active{transform:scale(.88);}
   .count-btn.finished{background:#4b8a63;}
- 
+
   .count-display{font-family:'Amiri',serif;font-size:15px;letter-spacing:.02em;}
   .count-display b{font-size:20px;}
- 
+
   /* tasbih floating widget */
   .tasbih-card{
     text-align:center;
@@ -253,20 +253,20 @@
     color:inherit;padding:8px 16px;border-radius:999px;
     font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;
   }
- 
+
   footer{
     text-align:center;margin-top:40px;font-size:12.5px;opacity:.55;
   }
- 
+
   @media (prefers-reduced-motion:reduce){
     *{animation:none !important;transition:none !important;}
   }
 </style>
 </head>
 <body>
- 
+
 <div class="stars" id="stars"></div>
- 
+
 <div class="wrap">
   <header class="top">
     <div class="eyebrow">حصنك اليومي</div>
@@ -274,13 +274,13 @@
     <div class="subtitle">اقرأ، اعدّ، واطمئنّ قلبك بذكر الله</div>
     <div class="hijri" id="todayDate"></div>
   </header>
- 
+
   <div class="mode-toggle">
     <button class="mode-btn" id="btnMorning">أذكار الصباح</button>
     <button class="mode-btn" id="btnEvening">أذكار المساء</button>
     <button class="mode-btn" id="btnTasbih">السبحة</button>
   </div>
- 
+
   <div class="day-progress" id="progressWrap">
     <div class="progress-text">
       أنجزت <b id="progressCount">0</b> من <span id="progressTotal">0</span> اليوم
@@ -293,12 +293,12 @@
       <div class="ring-label" id="ringLabel">0%</div>
     </div>
   </div>
- 
+
   <div id="azkarView">
     <div class="section-label"><span id="sectionTitle">أذكار الصباح</span><span class="dash"></span></div>
     <div id="cardsHost"></div>
   </div>
- 
+
   <div id="tasbihView" style="display:none;">
     <div class="section-label"><span>السبحة الرقمية</span><span class="dash"></span></div>
     <div class="card tasbih-card">
@@ -311,21 +311,21 @@
       </div>
     </div>
   </div>
- 
+
   <footer>صُنع بمحبة لوجه الله · بياناتك تبقى على جهازك فقط</footer>
 </div>
- 
+
 <script>
 (function(){
   "use strict";
- 
+
   // روابط التلاوة من everyayah.com (الشيخ مشاري العفاسي) — كل رقم بصيغة سورة+آية من 3 خانات
   const QA = "https://everyayah.com/data/Alafasy_128kbps/";
   const ayahKursi = [QA+"002255.mp3"];
   const surahIkhlas = [QA+"112001.mp3", QA+"112002.mp3", QA+"112003.mp3", QA+"112004.mp3"];
   const surahFalaq = [QA+"113001.mp3", QA+"113002.mp3", QA+"113003.mp3", QA+"113004.mp3", QA+"113005.mp3"];
   const surahNas = [QA+"114001.mp3", QA+"114002.mp3", QA+"114003.mp3", QA+"114004.mp3", QA+"114005.mp3", QA+"114006.mp3"];
- 
+
   const morningAzkar = [
     {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1, audio:ayahKursi},
     {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3, audio:surahIkhlas},
@@ -339,7 +339,7 @@
     {text:"لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", note:"عشر مرات", target:10},
     {text:"أَصْبَحْنَا عَلَىٰ فِطْرَةِ الْإِسْلَامِ، وَعَلَىٰ كَلِمَةِ الْإِخْلَاصِ، وَعَلَىٰ دِينِ نَبِيِّنَا مُحَمَّدٍ ﷺ", note:"مرة واحدة", target:1}
   ];
- 
+
   const eveningAzkar = [
     {text:"أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ، اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ...", note:"آية الكرسي — مرة واحدة", target:1, audio:ayahKursi},
     {text:"قُلْ هُوَ اللَّهُ أَحَدٌ، اللَّهُ الصَّمَدُ، لَمْ يَلِدْ وَلَمْ يُولَدْ، وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", note:"سورة الإخلاص — ثلاث مرات", target:3, audio:surahIkhlas},
@@ -353,9 +353,9 @@
     {text:"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِن شَرِّ مَا خَلَقَ", note:"ثلاث مرات", target:3},
     {text:"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ", note:"مرة واحدة", target:1}
   ];
- 
+
   const tasbihPhrases = ["سبحان الله وبحمده","سبحان الله","الحمد لله","لا إله إلا الله","الله أكبر","لا حول ولا قوة إلا بالله"];
- 
+
   const state = {
     mode: "morning",
     morning: loadCounts("morning", morningAzkar.length),
@@ -364,12 +364,12 @@
     tasbihCount: parseInt(localStorage.getItem("tasbih_count")||"0",10),
     playingKey: null
   };
- 
+
   function todayKey(){
     const d = new Date();
     return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
   }
- 
+
   function loadCounts(key, len){
     const stored = JSON.parse(localStorage.getItem("azkar_"+key)||"null");
     if(stored && stored.day === todayKey() && stored.counts && stored.counts.length === len){
@@ -377,20 +377,20 @@
     }
     return new Array(len).fill(0);
   }
- 
+
   function saveCounts(key, counts){
     localStorage.setItem("azkar_"+key, JSON.stringify({day: todayKey(), counts}));
   }
- 
+
   const cardsHost = document.getElementById("cardsHost");
   const sectionTitle = document.getElementById("sectionTitle");
   const azkarView = document.getElementById("azkarView");
   const tasbihView = document.getElementById("tasbihView");
   const progressWrap = document.getElementById("progressWrap");
- 
+
   function currentList(){ return state.mode === "morning" ? morningAzkar : eveningAzkar; }
   function currentCounts(){ return state.mode === "morning" ? state.morning : state.evening; }
- 
+
   function render(){
     const list = currentList();
     const counts = currentCounts();
@@ -424,7 +424,7 @@
     });
     updateProgress();
   }
- 
+
   cardsHost.addEventListener("click", function(e){
     const countBtn = e.target.closest(".count-btn");
     if(countBtn){
@@ -438,7 +438,7 @@
       toggleAudio(i);
     }
   });
- 
+
   // يزيد عداد ذكر معيّن بمقدار مرة واحدة، ويحفظ، ويحدّث الواجهة،
   // ولو اكتمل عدد المرات المطلوب ينتقل تلقائيًا (سكرول) للذكر التالي غير المكتمل
   function incrementZikr(i){
@@ -466,7 +466,7 @@
     }
     return justCompleted;
   }
- 
+
   // مشغّل صوتي متسلسل لتلاوة الآيات المرتبطة بكل ذكر — يكرر التلاوة كاملة
   // بعدد المرات المتبقية من هدف التكرار، ويزيد العداد تلقائيًا بعد كل مرة كاملة
   const player = new Audio();
@@ -474,7 +474,7 @@
   let playQueueIdx = 0;
   let ayahsPerRep = 1;
   let activeZikrIdx = -1;
- 
+
   function stopAudio(){
     player.pause();
     player.currentTime = 0;
@@ -482,26 +482,80 @@
     activeZikrIdx = -1;
     render();
   }
- 
+
+  // يبني طابور تشغيل لذكر معيّن (بعدد المرات المتبقية لإتمام هدفه) ويبدأ التشغيل.
+  // auto=true تعني أن هذا استمرار تلقائي من ذكر سابق (بدون تنبيه خطأ مزعج لو فشل)
+  function startAudioForZikr(i, auto){
+    const list = currentList();
+    const z = list[i];
+    if(!z || !z.audio || !z.audio.length){
+      stopAudio();
+      return;
+    }
+    const counts = currentCounts();
+    const remainingReps = z.target - counts[i];
+    if(remainingReps <= 0){
+      stopAudio();
+      return;
+    }
+    playQueue = [];
+    for(let r = 0; r < remainingReps; r++){
+      z.audio.forEach(url => playQueue.push(url));
+    }
+    ayahsPerRep = z.audio.length;
+    playQueueIdx = 0;
+    activeZikrIdx = i;
+    state.playingKey = state.mode + "-" + i;
+    render();
+    if(auto){
+      requestAnimationFrame(()=>{
+        const card = cardsHost.querySelector('[data-idx="'+i+'"]');
+        if(card) card.scrollIntoView({behavior:"smooth", block:"center"});
+      });
+    }
+    player.src = playQueue[0];
+    player.load();
+    const playPromise = player.play();
+    if(playPromise && playPromise.catch){
+      playPromise.catch(()=>{
+        // محاولة ثانية فورية قبل الاستسلام — بعض المتصفحات ترفض أول نداء ثم تسمح بالتالي
+        player.play().catch(()=>{
+          if(!auto) alert("تعذّر تشغيل التلاوة الآن، تأكد من اتصالك بالإنترنت.");
+          stopAudio();
+        });
+      });
+    }
+  }
+
   player.addEventListener("ended", function(){
     playQueueIdx++;
     // هل اكتملت مرة كاملة من التلاوة (كل آيات السورة/الآية)؟
     if(activeZikrIdx !== -1 && playQueueIdx % ayahsPerRep === 0){
-      const stillGoing = incrementZikr(activeZikrIdx);
-      // لو الذكر خلص (وصل للهدف) أو مفيش حاجة تانية في الطابور، وقف التشغيل
-      if(playQueueIdx >= playQueue.length){
-        stopAudio();
+      const justCompleted = incrementZikr(activeZikrIdx);
+      if(justCompleted){
+        // انتقل تلقائيًا لتشغيل صوت الذكر التالي الذي يحتوي على تلاوة، وهكذا
+        const list = currentList();
+        const counts = currentCounts();
+        const nextIdx = counts.findIndex((c,idx)=> c < list[idx].target);
+        if(nextIdx !== -1 && list[nextIdx].audio && list[nextIdx].audio.length){
+          // تأخير بسيط (0ms) يعطي المتصفح فرصة لإنهاء معالجة حدث "ended"
+          // الحالي قبل بدء تشغيل جديد، ما يقلل من رفض بعض المتصفحات لتشغيل تلقائي متتابع
+          setTimeout(()=> startAudioForZikr(nextIdx, true), 0);
+        } else {
+          stopAudio();
+        }
         return;
       }
     }
     if(playQueueIdx < playQueue.length){
       player.src = playQueue[playQueueIdx];
+      player.load();
       player.play().catch(()=> stopAudio());
     } else {
       stopAudio();
     }
   });
- 
+
   function toggleAudio(i){
     const key = state.mode + "-" + i;
     if(state.playingKey === key){
@@ -512,29 +566,9 @@
     if(state.playingKey){
       player.pause();
     }
-    const list = currentList();
-    const z = list[i];
-    if(!z.audio || !z.audio.length) return;
-    const counts = currentCounts();
-    const remainingReps = z.target - counts[i];
-    if(remainingReps <= 0) return;
-    // ابنِ طابور تشغيل يكرر آيات الذكر بعدد المرات المتبقية لإتمام الهدف
-    playQueue = [];
-    for(let r = 0; r < remainingReps; r++){
-      z.audio.forEach(url => playQueue.push(url));
-    }
-    ayahsPerRep = z.audio.length;
-    playQueueIdx = 0;
-    activeZikrIdx = i;
-    player.src = playQueue[0];
-    state.playingKey = key;
-    render();
-    player.play().catch(()=>{
-      alert("تعذّر تشغيل التلاوة الآن، تأكد من اتصالك بالإنترنت.");
-      stopAudio();
-    });
+    startAudioForZikr(i, false);
   }
- 
+
   function updateProgress(){
     const list = currentList();
     const counts = currentCounts();
@@ -546,16 +580,16 @@
     document.getElementById("ringFg").style.strokeDashoffset = circumference * (1-pct);
     document.getElementById("ringLabel").textContent = Math.round(pct*100)+"%";
   }
- 
+
   const btnMorning = document.getElementById("btnMorning");
   const btnEvening = document.getElementById("btnEvening");
   const btnTasbih = document.getElementById("btnTasbih");
- 
+
   function setActiveBtn(btn){
     [btnMorning, btnEvening, btnTasbih].forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
   }
- 
+
   function showAzkar(mode){
     if(state.playingKey) stopAudio();
     state.mode = mode;
@@ -566,14 +600,14 @@
     setActiveBtn(mode === "morning" ? btnMorning : btnEvening);
     render();
   }
- 
+
   function getAutoMode(){
     const hour = new Date().getHours();
     return (hour >= 15 || hour < 4) ? "evening" : "morning";
   }
- 
+
   let userPickedManually = false;
- 
+
   btnMorning.addEventListener("click", ()=>{ userPickedManually = true; showAzkar("morning"); });
   btnEvening.addEventListener("click", ()=>{ userPickedManually = true; showAzkar("evening"); });
   btnTasbih.addEventListener("click", ()=>{
@@ -583,13 +617,13 @@
     progressWrap.style.display = "none";
     setActiveBtn(btnTasbih);
   });
- 
+
   // Tasbih logic
   const tasbihCountEl = document.getElementById("tasbihCount");
   const tasbihPhraseEl = document.getElementById("tasbihPhrase");
   tasbihCountEl.textContent = state.tasbihCount;
   tasbihPhraseEl.textContent = tasbihPhrases[state.tasbihIdx];
- 
+
   document.getElementById("tasbihTap").addEventListener("click", ()=>{
     state.tasbihCount++;
     tasbihCountEl.textContent = state.tasbihCount;
@@ -605,10 +639,10 @@
     state.tasbihIdx = (state.tasbihIdx+1) % tasbihPhrases.length;
     tasbihPhraseEl.textContent = tasbihPhrases[state.tasbihIdx];
   });
- 
+
   // التعرف التلقائي على الوقت: أذكار الصباح فى الصباح، وأذكار المساء فى الليل
   showAzkar(getAutoMode());
- 
+
   // إعادة التحقق من الوقت دوريًا (كل دقيقة) لتحديث الوضع تلقائيًا لو تركت الصفحة مفتوحة
   // عبر انتقال الوقت من صباح لمساء أو العكس — ما لم تختر الوضع بنفسك يدويًا
   setInterval(function(){
@@ -617,7 +651,7 @@
     const auto = getAutoMode();
     if(auto !== state.mode) showAzkar(auto);
   }, 60000);
- 
+
   // كذلك أعد التحقق فور عودة المستخدم للصفحة (مثلاً بعد غلق الشاشة طوال الليل)
   document.addEventListener("visibilitychange", function(){
     if(document.visibilityState !== "visible") return;
@@ -626,10 +660,10 @@
     const auto = getAutoMode();
     if(auto !== state.mode) showAzkar(auto);
   });
- 
+
   // hijri-ish / gregorian date display
   document.getElementById("todayDate").textContent = new Date().toLocaleDateString("ar-EG", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
- 
+
   // stars for evening
   const starsHost = document.getElementById("stars");
   for(let i=0;i<40;i++){
