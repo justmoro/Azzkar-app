@@ -523,6 +523,10 @@
   let ayahsPerRep = 1;
   let activeZikrIdx = -1;
 
+  // قصّ آخر 5 ثوانٍ تقريبًا من كل مقطع صوتي (لتفادي صمت أو ذيل زائد في نهاية الملف)
+  const TRIM_END_SECONDS = 5;
+  let trackAdvancing = false;
+
   function stopAudio(){
     player.pause();
     player.currentTime = 0;
@@ -561,6 +565,7 @@
         if(card) card.scrollIntoView({behavior:"smooth", block:"center"});
       });
     }
+    trackAdvancing = false;
     player.src = playQueue[0];
     player.load();
     const playPromise = player.play();
@@ -575,7 +580,10 @@
     }
   }
 
-  player.addEventListener("ended", function(){
+  // ينفَّذ سواء انتهى المقطع طبيعيًا (ended) أو تم قصّه قبل آخر 5 ثوانٍ (timeupdate)
+  function advanceTrack(){
+    if(trackAdvancing) return;
+    trackAdvancing = true;
     playQueueIdx++;
     // هل اكتملت مرة كاملة من التلاوة (كل آيات السورة/الآية)؟
     if(activeZikrIdx !== -1 && playQueueIdx % ayahsPerRep === 0){
@@ -586,9 +594,8 @@
         const counts = currentCounts();
         const nextIdx = counts.findIndex((c,idx)=> c < list[idx].target);
         if(nextIdx !== -1 && list[nextIdx].audio && list[nextIdx].audio.length){
-          // الاستدعاء هنا يجب أن يكون مباشرًا (متزامنًا) داخل حدث "ended" نفسه
-          // وليس عبر setTimeout، حتى يظل ضمن سياق التفاعل الذي بدأه المستخدم
-          // فلا يرفضه المتصفح كتشغيل تلقائي غير مصرح به
+          // الاستدعاء هنا يجب أن يكون مباشرًا (متزامنًا) وليس عبر setTimeout،
+          // حتى يظل ضمن سياق التفاعل الذي بدأه المستخدم فلا يرفضه المتصفح
           startAudioForZikr(nextIdx, true);
         } else {
           stopAudio();
@@ -597,11 +604,24 @@
       }
     }
     if(playQueueIdx < playQueue.length){
+      trackAdvancing = false;
       player.src = playQueue[playQueueIdx];
       player.load();
       player.play().catch(()=> stopAudio());
     } else {
       stopAudio();
+    }
+  }
+
+  player.addEventListener("ended", advanceTrack);
+
+  // مراقبة تقدّم التشغيل: لو باقي 5 ثوانٍ أو أقل على نهاية المقطع، اعتبره انتهى وانتقل للتالي
+  player.addEventListener("timeupdate", function(){
+    if(trackAdvancing) return;
+    const d = player.duration;
+    if(d && isFinite(d) && d > TRIM_END_SECONDS && player.currentTime >= d - TRIM_END_SECONDS){
+      player.pause();
+      advanceTrack();
     }
   });
 
